@@ -1128,8 +1128,8 @@ static const NSTimeInterval kRNCWebViewTapMaxDuration = 0.25;
 -(void)setDisableTextHighlightMenu:(BOOL)disableTextHighlightMenu {
     NSLog(@"disableTextHighlightMenu: %@", self.disableTextHighlightMenu ? @"true" : @"false");
 
-    _disableMenuItems = disableTextHighlightMenu;
-    _webView.disableMenuItems = disableTextHighlightMenu;
+    disableTextHighlightMenu = disableTextHighlightMenu;
+    _webView.disableTextHighlightMenu = disableTextHighlightMenu;
 }
 
 #if !TARGET_OS_OSX
