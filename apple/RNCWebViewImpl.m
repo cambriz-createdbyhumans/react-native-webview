@@ -1125,12 +1125,12 @@ static const NSTimeInterval kRNCWebViewTapMaxDuration = 0.25;
 #endif // !TARGET_OS_OSX
 }
 
--(void)setDisableMenuItems:(BOOL)disableMenuItems {
-+    NSLog(@"disableMenuItems: %@", self.disableMenuItems ? @"true" : @"false");
-+
-+    _disableMenuItems = disableMenuItems;
-+    _webView.disableMenuItems = disableMenuItems;
-+}
+-(void)setDisableTextHighlightMenu:(BOOL)disableTextHighlightMenu {
+    NSLog(@"disableTextHighlightMenu: %@", self.disableTextHighlightMenu ? @"true" : @"false");
+
+    _disableMenuItems = disableTextHighlightMenu;
+    _webView.disableMenuItems = disableTextHighlightMenu;
+}
 
 #if !TARGET_OS_OSX
 // UIScrollViewDelegate method
