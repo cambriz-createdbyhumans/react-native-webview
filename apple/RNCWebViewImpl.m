@@ -126,6 +126,7 @@ RCTAutoInsetsProtocol>
 @property (nonatomic, strong) WKUserScript *injectedObjectJsonScript;
 @property (nonatomic, strong) WKUserScript *atStartScript;
 @property (nonatomic, strong) WKUserScript *atEndScript;
+@property (nonatomic, strong) UITapGestureRecognizer *webViewTapGestureRecognizer;
 @end
 
 @implementation RNCWebViewImpl
@@ -250,6 +251,8 @@ RCTAutoInsetsProtocol>
   // Only allow long press gesture
   if ([otherGestureRecognizer isKindOfClass:[UILongPressGestureRecognizer class]]) {
     return YES;
+  } else if ([otherGestureRecognizer isKindOfClass:[UITapGestureRecognizer class]]) {
+    return YES;
   }else{
     return NO;
   }
@@ -305,6 +308,35 @@ RCTAutoInsetsProtocol>
   }
   UIMenu *menu = [UIMenu menuWithChildren:menuItems];
   return menu;
+}
+
+- (void)configureTapGestureRecognizer
+{
+  if (_webView == nil) {
+    return;
+  }
+
+  if (_webViewTapGestureRecognizer != nil) {
+    [_webView removeGestureRecognizer:_webViewTapGestureRecognizer];
+    _webViewTapGestureRecognizer = nil;
+  }
+
+  _webViewTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleWebViewTap:)];
+  _webViewTapGestureRecognizer.delegate = self;
+  _webViewTapGestureRecognizer.cancelsTouchesInView = NO;
+
+  [_webView addGestureRecognizer:_webViewTapGestureRecognizer];
+  NSLog(@"[RNCWebView] tap gesture recognizer configured on WKWebView");
+}
+
+- (void)handleWebViewTap:(UITapGestureRecognizer *)tapGestureRecognizer
+{
+  if (tapGestureRecognizer.state != UIGestureRecognizerStateRecognized) {
+    return;
+  }
+
+  CGPoint tapPoint = [tapGestureRecognizer locationInView:_webView];
+  NSLog(@"[RNCWebView] tap detected at %@", NSStringFromCGPoint(tapPoint));
 }
 #endif // !TARGET_OS_OSX
 
@@ -551,6 +583,10 @@ RCTAutoInsetsProtocol>
     _webView.allowsBackForwardNavigationGestures = _allowsBackForwardNavigationGestures;
 
     _webView.customUserAgent = _userAgent;
+
+#if !TARGET_OS_OSX
+    [self configureTapGestureRecognizer];
+#endif // !TARGET_OS_OSX
 
 #if !TARGET_OS_OSX
     if ([_webView.scrollView respondsToSelector:@selector(setContentInsetAdjustmentBehavior:)]) {
@@ -1961,6 +1997,15 @@ didFinishNavigation:(WKNavigation *)navigation
   return request;
 }
 
+- (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+  [super touchesEnded:touches withEvent:event];
+  NSLog(@"[RNCWebView] touchesEnded");
+  UITouch *touch = [touches anyObject];
+  if (touch.phase == UITouchPhaseEnded) {
+    NSLog(@"[RNCWebView] tap at %@", NSStringFromCGPoint([touch locationInView:self]));
+  }
+}
 @end
 
 @implementation RNCWeakScriptMessageDelegate
