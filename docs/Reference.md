@@ -26,6 +26,7 @@ This document lays out the current public properties and methods for the React N
 - [`onOpenWindow`](Reference.md#onopenwindow)
 - [`onContentProcessDidTerminate`](Reference.md#oncontentprocessdidterminate)
 - [`onScroll`](Reference.md#onscroll)
+- [`onSingleTap`](Reference.md#onsingletap)
 - [`originWhitelist`](Reference.md#originwhitelist)
 - [`renderError`](Reference.md#rendererror)
 - [`renderLoading`](Reference.md#renderloading)
@@ -719,6 +720,39 @@ contentSize
 layoutMeasurement
 velocity
 zoomScale
+```
+
+---
+
+### `onSingleTap`[⬆](#props-index)
+
+Function that is invoked when the user performs a single tap on the `WebView`. Provides the tap point relative to the WebView.
+
+| Type     | Required | Platform |
+| -------- | -------- | -------- |
+| function | No       | iOS      |
+
+Example:
+
+```jsx
+<WebView
+  source={{ uri: 'https://reactnative.dev' }}
+  onSingleTap={({ nativeEvent: { location } }) => {
+    console.log('Tapped at', location.x, location.y);
+  }}
+/>
+```
+
+Function passed to `onSingleTap` is called with a SyntheticEvent wrapping a nativeEvent with these properties:
+
+```
+canGoBack
+canGoForward
+loading
+target
+title
+url
+location
 ```
 
 ---

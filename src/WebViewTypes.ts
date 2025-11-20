@@ -134,6 +134,13 @@ export interface WebViewOpenWindow {
   targetUrl: string;
 }
 
+export interface WebViewTapEvent extends WebViewNativeEvent {
+  location: {
+    x: number;
+    y: number;
+  };
+}
+
 export type WebViewEvent = NativeSyntheticEvent<WebViewNativeEvent>;
 
 export type WebViewProgressEvent =
@@ -158,6 +165,7 @@ export type WebViewRenderProcessGoneEvent =
   NativeSyntheticEvent<WebViewRenderProcessGoneDetail>;
 
 export type WebViewOpenWindowEvent = NativeSyntheticEvent<WebViewOpenWindow>;
+export type WebViewSingleTapEvent = NativeSyntheticEvent<WebViewTapEvent>;
 
 export type WebViewScrollEvent = NativeSyntheticEvent<NativeScrollEvent>;
 
@@ -1252,6 +1260,13 @@ export interface WebViewSharedProps extends ViewProps {
    * available on the event object, `event.nativeEvent.data`. `data` must be a string.
    */
   onMessage?: (event: WebViewMessageEvent) => void;
+
+  /**
+   * Function that is invoked when the user performs a single tap on the WebView.
+   * Provides the tap location relative to the WebView.
+   * @platform ios
+   */
+  onSingleTap?: (event: WebViewSingleTapEvent) => void;
 
   /**
    * Function that is invoked when the `WebView` is loading.

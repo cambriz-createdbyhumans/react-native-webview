@@ -337,6 +337,17 @@ RCTAutoInsetsProtocol>
 
   CGPoint tapPoint = [tapGestureRecognizer locationInView:_webView];
   NSLog(@"[RNCWebView] tap detected at %@", NSStringFromCGPoint(tapPoint));
+
+  if (_onSingleTap) {
+    NSMutableDictionary<NSString *, id> *event = [self baseEvent];
+    [event addEntriesFromDictionary:@{
+      @"location": @{
+        @"x": @(tapPoint.x),
+        @"y": @(tapPoint.y)
+      }
+    }];
+    _onSingleTap(event);
+  }
 }
 #endif // !TARGET_OS_OSX
 

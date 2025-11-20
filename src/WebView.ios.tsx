@@ -73,6 +73,7 @@ const WebViewComponent = forwardRef<{}, IOSWebViewProps>(
       onHttpError: onHttpErrorProp,
       onMessage: onMessageProp,
       onOpenWindow: onOpenWindowProp,
+      onSingleTap,
       renderLoading,
       renderError,
       style,
@@ -249,6 +250,7 @@ const WebViewComponent = forwardRef<{}, IOSWebViewProps>(
         onMessage={onMessage}
         onOpenWindow={onOpenWindowProp && onOpenWindow}
         hasOnOpenWindowEvent={onOpenWindowProp !== undefined}
+        onSingleTap={onSingleTap}
         onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
         onContentProcessDidTerminate={onContentProcessDidTerminate}
         injectedJavaScript={injectedJavaScript}

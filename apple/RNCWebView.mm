@@ -139,6 +139,25 @@ auto stringToOnLoadingFinishNavigationTypeEnum(std::string value) {
                 webViewEventEmitter->onMessage(data);
             }
         };
+        _view.onSingleTap = [self](NSDictionary* dictionary) {
+            if (_eventEmitter) {
+                NSDictionary* location = [dictionary valueForKey:@"location"];
+                auto webViewEventEmitter = std::static_pointer_cast<RNCWebViewEventEmitter const>(_eventEmitter);
+                facebook::react::RNCWebViewEventEmitter::OnSingleTap data = {
+                    .url = std::string([[dictionary valueForKey:@"url"] UTF8String]),
+                    .lockIdentifier = [[dictionary valueForKey:@"lockIdentifier"] doubleValue],
+                    .title = std::string([[dictionary valueForKey:@"title"] UTF8String]),
+                    .canGoBack = static_cast<bool>([[dictionary valueForKey:@"canGoBack"] boolValue]),
+                    .canGoForward = static_cast<bool>([[dictionary valueForKey:@"canGoForward"] boolValue]),
+                    .loading = static_cast<bool>([[dictionary valueForKey:@"loading"] boolValue]),
+                    .location = {
+                        .x = [[location valueForKey:@"x"] doubleValue],
+                        .y = [[location valueForKey:@"y"] doubleValue]
+                    }
+                };
+                webViewEventEmitter->onSingleTap(data);
+            }
+        };
         _view.onLoadingFinish = [self](NSDictionary* dictionary) {
             if (_eventEmitter) {
                 auto webViewEventEmitter = std::static_pointer_cast<RNCWebViewEventEmitter const>(_eventEmitter);
