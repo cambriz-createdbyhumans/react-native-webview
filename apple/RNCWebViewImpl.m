@@ -310,6 +310,8 @@ RCTAutoInsetsProtocol>
   return menu;
 }
 
+static const NSTimeInterval kRNCWebViewTapMaxDuration = 0.25;
+
 - (void)configureTapGestureRecognizer
 {
   if (_webView == nil) {
@@ -321,12 +323,34 @@ RCTAutoInsetsProtocol>
     _webViewTapGestureRecognizer = nil;
   }
 
+  if (_webViewLongPressRecognizer != nil) {
+    NSLog(@"Removing existing long press recognizer");
+    [_webView removeGestureRecognizer:_webViewLongPressRecognizer];
+    _webViewLongPressRecognizer = nil;
+  }
+
   _webViewTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleWebViewTap:)];
   _webViewTapGestureRecognizer.delegate = self;
   _webViewTapGestureRecognizer.cancelsTouchesInView = NO;
 
+  _webViewLongPressRecognizer = [[UILongPressGestureRecognizer alloc] init];
+  _webViewLongPressRecognizer.minimumPressDuration = kRNCWebViewTapMaxDuration;
+  _webViewLongPressRecognizer.delegate = self;
+
+  [_webView addGestureRecognizer:_webViewLongPressRecognizer];
+  [_webViewTapGestureRecognizer requireGestureRecognizerToFail:_webViewLongPressRecognizer];
   [_webView addGestureRecognizer:_webViewTapGestureRecognizer];
   NSLog(@"[RNCWebView] tap gesture recognizer configured on WKWebView");
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
+{
+  NSLog(@"[RNCWebView] gestureRecognizer shouldReceiveTouch called");
+  if (gestureRecognizer == _webViewTapGestureRecognizer) {
+    _tapStartTimestamp = CACurrentMediaTime();
+  }
+
+  return YES;
 }
 
 - (void)handleWebViewTap:(UITapGestureRecognizer *)tapGestureRecognizer
@@ -334,9 +358,12 @@ RCTAutoInsetsProtocol>
   if (tapGestureRecognizer.state != UIGestureRecognizerStateRecognized) {
     return;
   }
+  const NSTimeInterval elapsed = CACurrentMediaTime() - _tapStartTimestamp;
+  if (_tapStartTimestamp > 0 && elapsed > kRNCWebViewTapMaxDuration) {
+    return;
+  }
 
   CGPoint tapPoint = [tapGestureRecognizer locationInView:_webView];
-  NSLog(@"[RNCWebView] tap detected at %@", NSStringFromCGPoint(tapPoint));
 
   if (_onSingleTap) {
     NSMutableDictionary<NSString *, id> *event = [self baseEvent];
@@ -2008,15 +2035,6 @@ didFinishNavigation:(WKNavigation *)navigation
   return request;
 }
 
-- (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
-{
-  [super touchesEnded:touches withEvent:event];
-  NSLog(@"[RNCWebView] touchesEnded");
-  UITouch *touch = [touches anyObject];
-  if (touch.phase == UITouchPhaseEnded) {
-    NSLog(@"[RNCWebView] tap at %@", NSStringFromCGPoint([touch locationInView:self]));
-  }
-}
 @end
 
 @implementation RNCWeakScriptMessageDelegate

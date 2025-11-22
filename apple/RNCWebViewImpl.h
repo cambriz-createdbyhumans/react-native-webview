@@ -45,7 +45,10 @@ shouldStartLoadForRequest:(NSMutableDictionary<NSString *, id> *)request
 @end
 
 #if !TARGET_OS_OSX
-@interface RNCWebViewImpl : RCTView <UIEditMenuInteractionDelegate, UIGestureRecognizerDelegate>
+@interface RNCWebViewImpl : RCTView <UIEditMenuInteractionDelegate, UIGestureRecognizerDelegate> {
+  NSTimeInterval _tapStartTimestamp;
+  UILongPressGestureRecognizer *_webViewLongPressRecognizer;
+}
 
 @property (nonatomic, nullable) UIEditMenuInteraction *editMenuInteraction API_AVAILABLE(ios(16.0));
 #else
