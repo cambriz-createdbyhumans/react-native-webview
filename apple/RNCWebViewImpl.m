@@ -323,22 +323,23 @@ static const NSTimeInterval kRNCWebViewTapMaxDuration = 0.25;
     _webViewTapGestureRecognizer = nil;
   }
 
-  if (_webViewLongPressRecognizer != nil) {
-    NSLog(@"Removing existing long press recognizer");
-    [_webView removeGestureRecognizer:_webViewLongPressRecognizer];
-    _webViewLongPressRecognizer = nil;
-  }
-
   _webViewTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleWebViewTap:)];
   _webViewTapGestureRecognizer.delegate = self;
   _webViewTapGestureRecognizer.cancelsTouchesInView = NO;
 
+  if (_webViewLongPressRecognizer != nil) {
+    [_webView removeGestureRecognizer:_webViewLongPressRecognizer];
+    _webViewLongPressRecognizer = nil;
+  }
+
   _webViewLongPressRecognizer = [[UILongPressGestureRecognizer alloc] init];
   _webViewLongPressRecognizer.minimumPressDuration = kRNCWebViewTapMaxDuration;
   _webViewLongPressRecognizer.delegate = self;
+  _webViewLongPressRecognizer.cancelsTouchesInView = NO;
 
   [_webView addGestureRecognizer:_webViewLongPressRecognizer];
   [_webViewTapGestureRecognizer requireGestureRecognizerToFail:_webViewLongPressRecognizer];
+
   [_webView addGestureRecognizer:_webViewTapGestureRecognizer];
   NSLog(@"[RNCWebView] tap gesture recognizer configured on WKWebView");
 }
