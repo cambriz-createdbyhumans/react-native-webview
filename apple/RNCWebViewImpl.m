@@ -341,12 +341,10 @@ static const NSTimeInterval kRNCWebViewTapMaxDuration = 0.25;
   [_webViewTapGestureRecognizer requireGestureRecognizerToFail:_webViewLongPressRecognizer];
 
   [_webView addGestureRecognizer:_webViewTapGestureRecognizer];
-  NSLog(@"[RNCWebView] tap gesture recognizer configured on WKWebView");
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
 {
-  NSLog(@"[RNCWebView] gestureRecognizer shouldReceiveTouch called");
   if (gestureRecognizer == _webViewTapGestureRecognizer) {
     _tapStartTimestamp = CACurrentMediaTime();
   }
