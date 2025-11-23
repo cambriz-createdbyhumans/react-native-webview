@@ -31,17 +31,12 @@ export type WebViewMessageEvent = Readonly<{
   data: string;
 }>;
 export type WebViewTapEvent = Readonly<{
-  url: string;
-  loading: boolean;
-  title: string;
-  canGoBack: boolean;
-  canGoForward: boolean;
-  lockIdentifier: Double;
   location: Readonly<{
     x: Double;
     y: Double;
   }>;
 }>;
+
 export type WebViewOpenWindowEvent = Readonly<{
   targetUrl: string;
 }>;
