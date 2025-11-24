@@ -24,6 +24,11 @@ module.exports = {
     // Help rn-cli find and autolink this library
     'react-native-webview': {
       root: __dirname,
+      platforms: {
+        ios: {
+          podspecPath: path.join(__dirname, 'react-native-webview.podspec'),
+        },
+      },
     },
   },
   dependency: {
