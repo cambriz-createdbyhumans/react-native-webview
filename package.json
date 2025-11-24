@@ -4,6 +4,7 @@
   "description": "CbH fork of react-native-webview",
   "author": "Jamon Holmgren <jamon@infinite.red>",
   "license": "MIT",
+  "homepage": "https://github.com/react-native-webview/react-native-webview",
   "main": "src/index.ts",
   "react-native": "src/index.ts",
   "types": "index.d.ts",
