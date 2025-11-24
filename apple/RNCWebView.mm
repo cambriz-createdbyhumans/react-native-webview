@@ -7,10 +7,17 @@
 #import <react/renderer/components/RNCWebViewSpec/EventEmitters.h>
 #import <react/renderer/components/RNCWebViewSpec/Props.h>
 #import <react/renderer/components/RNCWebViewSpec/RCTComponentViewHelpers.h>
+#include <type_traits>
 
 #import <React/RCTFabricComponentsPlugins.h>
 
 using namespace facebook::react;
+
+template <typename T, typename = void>
+struct RNCWebViewHasOnSingleTap : std::false_type {};
+
+template <typename T>
+struct RNCWebViewHasOnSingleTap<T, std::void_t<decltype(&T::onSingleTap), typename T::OnSingleTap>> : std::true_type {};
 
 auto stringToOnShouldStartLoadWithRequestNavigationTypeEnum(std::string value) {
     if (value == "click") return RNCWebViewEventEmitter::OnShouldStartLoadWithRequestNavigationType::Click;
@@ -137,6 +144,21 @@ auto stringToOnLoadingFinishNavigationTypeEnum(std::string value) {
                     .data = std::string([[dictionary valueForKey:@"data"] UTF8String])
                 };
                 webViewEventEmitter->onMessage(data);
+            }
+        };
+        _view.onSingleTap = [self](NSDictionary* dictionary) {
+            if (_eventEmitter) {
+                NSDictionary* location = [dictionary valueForKey:@"location"];
+                auto webViewEventEmitter = std::static_pointer_cast<RNCWebViewEventEmitter const>(_eventEmitter);
+                if constexpr (RNCWebViewHasOnSingleTap<RNCWebViewEventEmitter>::value) {
+                    facebook::react::RNCWebViewEventEmitter::OnSingleTap data = {
+                        .location = {
+                            .x = [[location valueForKey:@"x"] doubleValue],
+                            .y = [[location valueForKey:@"y"] doubleValue]
+                        }
+                    };
+                    webViewEventEmitter->onSingleTap(data);
+                }
             }
         };
         _view.onLoadingFinish = [self](NSDictionary* dictionary) {

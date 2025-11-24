@@ -30,6 +30,13 @@ export type WebViewMessageEvent = Readonly<{
   lockIdentifier: Double;
   data: string;
 }>;
+export type WebViewTapEvent = Readonly<{
+  location: Readonly<{
+    x: Double;
+    y: Double;
+  }>;
+}>;
+
 export type WebViewOpenWindowEvent = Readonly<{
   targetUrl: string;
 }>;
@@ -240,6 +247,7 @@ export interface NativeProps extends ViewProps {
   onContentProcessDidTerminate?: DirectEventHandler<WebViewNativeEvent>;
   onCustomMenuSelection?: DirectEventHandler<WebViewCustomMenuSelectionEvent>;
   onFileDownload?: DirectEventHandler<WebViewDownloadEvent>;
+  onSingleTap?: DirectEventHandler<WebViewTapEvent>;
 
   menuItems?: ReadonlyArray<Readonly<{ label: string; key: string }>>;
   suppressMenuItems?: Readonly<string>[];

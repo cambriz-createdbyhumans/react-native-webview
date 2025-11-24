@@ -45,7 +45,10 @@ shouldStartLoadForRequest:(NSMutableDictionary<NSString *, id> *)request
 @end
 
 #if !TARGET_OS_OSX
-@interface RNCWebViewImpl : RCTView <UIEditMenuInteractionDelegate, UIGestureRecognizerDelegate>
+@interface RNCWebViewImpl : RCTView <UIEditMenuInteractionDelegate, UIGestureRecognizerDelegate> {
+  NSTimeInterval _tapStartTimestamp;
+  UILongPressGestureRecognizer *_webViewLongPressRecognizer;
+}
 
 @property (nonatomic, nullable) UIEditMenuInteraction *editMenuInteraction API_AVAILABLE(ios(16.0));
 #else
@@ -61,6 +64,7 @@ shouldStartLoadForRequest:(NSMutableDictionary<NSString *, id> *)request
 @property (nonatomic, copy) RCTDirectEventBlock onShouldStartLoadWithRequest;
 @property (nonatomic, copy) RCTDirectEventBlock onHttpError;
 @property (nonatomic, copy) RCTDirectEventBlock onMessage;
+@property (nonatomic, copy) RCTDirectEventBlock onSingleTap;
 @property (nonatomic, copy) RCTDirectEventBlock onScroll;
 @property (nonatomic, copy) RCTDirectEventBlock onContentProcessDidTerminate;
 @property (nonatomic, copy) RCTDirectEventBlock onOpenWindow;

@@ -126,6 +126,7 @@ RCTAutoInsetsProtocol>
 @property (nonatomic, strong) WKUserScript *injectedObjectJsonScript;
 @property (nonatomic, strong) WKUserScript *atStartScript;
 @property (nonatomic, strong) WKUserScript *atEndScript;
+@property (nonatomic, strong) UITapGestureRecognizer *webViewTapGestureRecognizer;
 @end
 
 @implementation RNCWebViewImpl
@@ -250,6 +251,8 @@ RCTAutoInsetsProtocol>
   // Only allow long press gesture
   if ([otherGestureRecognizer isKindOfClass:[UILongPressGestureRecognizer class]]) {
     return YES;
+  } else if ([otherGestureRecognizer isKindOfClass:[UITapGestureRecognizer class]]) {
+    return YES;
   }else{
     return NO;
   }
@@ -305,6 +308,72 @@ RCTAutoInsetsProtocol>
   }
   UIMenu *menu = [UIMenu menuWithChildren:menuItems];
   return menu;
+}
+
+static const NSTimeInterval kRNCWebViewTapMaxDuration = 0.25;
+
+- (void)configureTapGestureRecognizer
+{
+  if (_webView == nil) {
+    return;
+  }
+
+  if (_webViewTapGestureRecognizer != nil) {
+    [_webView removeGestureRecognizer:_webViewTapGestureRecognizer];
+    _webViewTapGestureRecognizer = nil;
+  }
+
+  _webViewTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleWebViewTap:)];
+  _webViewTapGestureRecognizer.delegate = self;
+  _webViewTapGestureRecognizer.cancelsTouchesInView = NO;
+
+  if (_webViewLongPressRecognizer != nil) {
+    [_webView removeGestureRecognizer:_webViewLongPressRecognizer];
+    _webViewLongPressRecognizer = nil;
+  }
+
+  _webViewLongPressRecognizer = [[UILongPressGestureRecognizer alloc] init];
+  _webViewLongPressRecognizer.minimumPressDuration = kRNCWebViewTapMaxDuration;
+  _webViewLongPressRecognizer.delegate = self;
+  _webViewLongPressRecognizer.cancelsTouchesInView = NO;
+
+  [_webView addGestureRecognizer:_webViewLongPressRecognizer];
+  [_webViewTapGestureRecognizer requireGestureRecognizerToFail:_webViewLongPressRecognizer];
+
+  [_webView addGestureRecognizer:_webViewTapGestureRecognizer];
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
+{
+  if (gestureRecognizer == _webViewTapGestureRecognizer) {
+    _tapStartTimestamp = CACurrentMediaTime();
+  }
+
+  return YES;
+}
+
+- (void)handleWebViewTap:(UITapGestureRecognizer *)tapGestureRecognizer
+{
+  if (tapGestureRecognizer.state != UIGestureRecognizerStateRecognized) {
+    return;
+  }
+  const NSTimeInterval elapsed = CACurrentMediaTime() - _tapStartTimestamp;
+  if (_tapStartTimestamp > 0 && elapsed > kRNCWebViewTapMaxDuration) {
+    return;
+  }
+
+  CGPoint tapPoint = [tapGestureRecognizer locationInView:_webView];
+
+  if (_onSingleTap) {
+    NSMutableDictionary<NSString *, id> *event = [self baseEvent];
+    [event addEntriesFromDictionary:@{
+      @"location": @{
+        @"x": @(tapPoint.x),
+        @"y": @(tapPoint.y)
+      }
+    }];
+    _onSingleTap(event);
+  }
 }
 #endif // !TARGET_OS_OSX
 
@@ -551,6 +620,10 @@ RCTAutoInsetsProtocol>
     _webView.allowsBackForwardNavigationGestures = _allowsBackForwardNavigationGestures;
 
     _webView.customUserAgent = _userAgent;
+
+#if !TARGET_OS_OSX
+    [self configureTapGestureRecognizer];
+#endif // !TARGET_OS_OSX
 
 #if !TARGET_OS_OSX
     if ([_webView.scrollView respondsToSelector:@selector(setContentInsetAdjustmentBehavior:)]) {
