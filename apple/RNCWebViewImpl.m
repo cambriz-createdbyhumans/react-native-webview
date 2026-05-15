@@ -82,9 +82,6 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
 - (BOOL)canPerformAction:(SEL)action
               withSender:(id)sender{
 
-  if (self.disableTextHighlightMenu) {
-      return NO;
-  }
   if(self.suppressMenuItems) {
       NSString * sel = [self stringFromAction:action];
       if ([self.suppressMenuItems containsObject: sel]) {
@@ -99,10 +96,6 @@ NSString *const CUSTOM_SELECTOR = @"_CUSTOM_SELECTOR_";
   return NO;
 }
 - (void)buildMenuWithBuilder:(id<UIMenuBuilder>)builder API_AVAILABLE(ios(13.0))  {
-    if (self.disableTextHighlightMenu) {
-        return;
-    }
-    
     if (@available(iOS 16.0, *)) {
       if(self.menuItems){
         [builder removeMenuForIdentifier:UIMenuLookup];
