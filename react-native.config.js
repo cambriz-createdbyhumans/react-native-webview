@@ -1,5 +1,6 @@
+const path = require('path');
+
 const project = (() => {
-  const path = require('path');
   try {
     const { configureProjects } = require('react-native-test-app');
     return configureProjects({
